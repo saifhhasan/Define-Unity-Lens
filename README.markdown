@@ -63,8 +63,8 @@ The features of application are:
 
 
 
-# Insights of Define Lens
----------------
+Insights of Define Lens
+-------
 
 This lens uses sympy library to evaluate the mathematical expressions.
 
