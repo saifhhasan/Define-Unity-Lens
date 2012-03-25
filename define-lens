@@ -1,0 +1,210 @@
+#!/usr/bin/python
+
+from singlet.lens import SingleScopeLens, IconViewCategory, ListViewCategory
+from singlet.utils import run_lens
+import sys
+import sympy
+import urllib2
+import simplejson
+from gi.repository import GLib
+
+
+
+class mySearch:
+	def execute(self, query):
+		calc_results = self.evaluateExpression(query)
+		dict_results = self.defineWord(query);
+		results = dict(calc_results.items() + dict_results.items())
+		return results
+
+	def isNumber(self,s):
+		try:
+			float(s) # for int, long and float
+		except ValueError:
+			try:
+				complex(s) # for complex
+			except ValueError:
+				return False
+		return True
+
+	def evaluateExpression(self, query):
+		pi = sympy.Symbol("pi")
+		e = sympy.Symbol("e")
+		retval = {}
+		try:
+			value = sympy.sympify(query).evalf(subs={pi:3.14159265, e:2.71828183})
+			if(self.isNumber(str(value))):
+				retval = {"Calculator" : [str(value)]}
+		except: #Catch all exceptions
+			retval = {}
+		return retval
+
+	def defineWord(self, query):
+		res = {}
+		#Quoting query, to avoid bad urls
+		query = urllib2.quote(query)
+		url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&q=" + query + "&sl=en&tl=en&restrict=pr%2Cde&client=te"
+		#req = urllib.request.Request(url)
+		response = urllib2.urlopen(url)
+		jsonString = response.read()
+		
+		#Performing pre-processing
+		jsonString = jsonString.replace("\\x", "\\u00")
+		jsonString = unicode(jsonString, errors='ignore')
+		jsonString = jsonString[25:]
+		jsonString = jsonString[:len(jsonString)-10]
+
+		#Converting jsonString into jsonObject
+		jsonObject = simplejson.loads(jsonString)
+
+		if 'primaries' in jsonObject:
+			pflag = True
+		else:
+			pflag = False
+		if 'webDefinitions' in jsonObject:
+			wflag = True
+		else:
+			wflag = False
+		res1 = {}
+		res2 = {}
+		if pflag:
+			res1 = self.getPrimaries(jsonObject['primaries'])
+		if wflag:
+			res2 = self.getWebDefinitions(jsonObject['webDefinitions'][0])
+		res = dict(res1.items() + res2.items())
+
+		return res
+
+	def suggestSpelling(self, query):
+		retval = {}
+		url1 = "http://api.bing.net/json.aspx?AppId=D7D611A67398A4690CCF34ABE35461172CA20DCD&Version=2.2&Market=en-US&Query=" + query + "&Sources=spell&Web.Count=1&JsonType=raw"
+		response = urllib2.urlopen(url1)
+		jsonString = response.read()
+		jsonObject = simplejson.loads(jsonString)
+		try:
+			results = jsonObject['SearchResponse']['Spell']['Results']
+			suggestion = results[0]['Value']
+			retval = {"SpellSuggestion" : [suggestion.capitalize()] }
+		except KeyError:
+			retval = {}
+		return retval
+
+	def getWebDefinitions(self, webdefs):
+		defs = []
+		for defi in webdefs['entries']:
+			defs.append(defi['terms'][0]['text'])
+		return {"WebDefinitions" : defs}
+
+	def getPrimaries(self, primaries):
+		retval = {}
+		for primary in primaries:
+			label = self.getLabel(primary["terms"])
+			retval[label] = self.getPrimaryEntries(primary["entries"])
+		return retval
+
+	def getLabel(self, terms):
+		try:
+			return str(terms[0]["labels"][0]["text"])
+		except:
+			return "Mean"
+
+	def getPrimaryEntries(self, entries):
+		retval = []
+		for entry in entries:
+			if (self.getPrimaryEntry(entry) != ""):
+					retval.append(self.getPrimaryEntry(entry))
+		return retval
+
+	def getPrimaryEntry(self, entry):
+		if (entry['type'] == 'meaning'):
+			str1 = entry['terms'][0]['text'] + "\n"
+			try:
+				for ent in entry['entries']:
+					str1 = str1 + ent['terms'][0]['text'] + "\n"
+			except KeyError:
+				str1 = str1
+			return str(str1)
+		else :
+			return ""
+
+
+class DefineLens(SingleScopeLens):
+	
+	class Meta:
+		name = 'define'
+		title = 'Define'
+		description = 'Evaluate or Define'
+		search_hint = 'Evaluate or Lookup'
+		icon = 'icons/mean-lens.png'
+		category_order = ['spellCheck', 'calculator', 'noun', 'verb', 'adjective', 'webDefinitions']
+	
+	calculator = ListViewCategory('Evaluate Expression', 'hint')
+	spellCheck = ListViewCategory('Did you Mean', 'hint')
+	noun = ListViewCategory('Meaning Noun', 'accessories-dictionary')
+	verb = ListViewCategory('Meaning Verb', 'accessories-dictionary')
+	adjective = ListViewCategory('Meaning Adjective', 'accessories-dictionary')
+	webDefinitions = ListViewCategory('Web Definitiions', 'accessories-dictionary')
+	mySearchModule = mySearch()
+	
+	def global_search(self, phrase, results):
+		self.search(phrase, results)
+		#results.append( self.strList[0] % phrase, 'file', self.verb, "text/html", phrase, phrase, '')
+		
+	def search(self, phrase, results):
+		myvalues1 = self.mySearchModule.evaluateExpression(phrase)
+		myvalues = []
+		if "Calculator" in myvalues1.keys():
+			myvalues = myvalues1["Calculator"]
+		for myvalue in myvalues:
+			results.append('result/%s' % myvalue, '/usr/share/unity/lenses/define/icons/calculator.png', self.calculator, "text/html", myvalue, '', '')
+		
+		myvalues1 = self.mySearchModule.suggestSpelling(phrase)
+		myvalues = []
+		if "SpellSuggestion" in myvalues1.keys():
+			myvalues = myvalues1["SpellSuggestion"]
+		for myvalue in myvalues:
+			results.append('define/%s' % phrase, '/usr/share/unity/lenses/define/icons/suggestion.png', self.spellCheck, "text/html", myvalue, '', '')
+		
+		myvalues1 = self.mySearchModule.defineWord(phrase)
+		myvalues = []
+		if "WebDefinitions" in myvalues1.keys():
+			myvalues = myvalues1["WebDefinitions"]
+		for myvalue in myvalues:
+			results.append('result/%s' % myvalue, '/usr/share/unity/lenses/define/icons/web-dictionary.png', self.webDefinitions, "text/html", phrase, myvalue, '')
+		myvalues = []
+		if "Noun" in myvalues1.keys():
+			myvalues = myvalues1["Noun"]
+		for myvalue in myvalues:
+			results.append('result/%s' % myvalue, '/usr/share/unity/lenses/define/icons/dictionary.png', self.noun, "text/html", phrase, myvalue, '')
+		myvalues = []
+		if "Adjective" in myvalues1.keys():
+			myvalues = myvalues1["Adjective"]
+		for myvalue in myvalues:
+			results.append('result/%s' % myvalue, '/usr/share/unity/lenses/define/icons/dictionary.png', self.adjective, "text/html", phrase, myvalue, '')
+		myvalues = []
+		if "Verb" in myvalues1.keys():
+			myvalues = myvalues1["Verb"]
+		for myvalue in myvalues:
+			results.append('result/%s' % myvalue, '/usr/share/unity/lenses/define/icons/dictionary.png', self.verb, "text/html", phrase, myvalue, '')
+	
+	def handle_uri(self, scope, uri):
+		urlParts = uri.split('/', 1)
+		action = urlParts[0]
+		myvalue = urlParts[1]
+		if action == 'define':
+			results = self._scope.props.results_model
+			results.clear()
+			self.search (myvalue, results)
+			return self.update_dash_response()
+		elif action == 'result':
+			import gtk
+			clipboard = gtk.clipboard_get()
+			clipboard.set_text(myvalue)
+			clipboard.store()
+			GLib.spawn_command_line_async("notify-send -i gtk-copy '%s'" % myvalue)
+			return self.hide_dash_response()
+	
+
+if __name__ == "__main__":
+	run_lens(DefineLens, sys.argv)
+

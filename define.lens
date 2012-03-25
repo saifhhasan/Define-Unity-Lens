@@ -1,0 +1,11 @@
+[Lens]
+DBusName=unity.singlet.lens.define
+DBusPath=/unity/singlet/lens/define
+Name=Evaluate or Lookup
+Icon=/usr/share/unity/lenses/define/mean-lens.png
+Description=Evaluate or Define
+SearchHint=Evaluate or Lookup
+Shortcut=c
+
+[Desktop Entry]
+X-Ubuntu-Gettext-Domain=define

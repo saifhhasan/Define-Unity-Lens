@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=unity.singlet.lens.define
+Exec=/usr/lib/singlet/./define-lens
