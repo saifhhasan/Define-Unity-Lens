@@ -162,7 +162,10 @@ class DefineLens(SingleScopeLens):
 		for myvalue in myvalues:
 			results.append('result/%s' % myvalue, '/usr/share/unity/lenses/define/icons/calculator.png', self.calculator, "text/html", myvalue, '', '')
 		
-		myvalues1 = self.mySearchModule.suggestSpelling(phrase)
+		try:
+			myvalues1 = self.mySearchModule.suggestSpelling(phrase)
+		except:
+			myvalues1 = {}
 		myvalues = []
 		if "SpellSuggestion" in myvalues1.keys():
 			myvalues = myvalues1["SpellSuggestion"]

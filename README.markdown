@@ -26,6 +26,7 @@ It depends on python-gobject, python-sympy and singlet module which is included 
 
 To install dependecies run the following commands in terminal:
 
+* sudo apt-get install python-dev
 * sudo apt-get install python-gobject
 * sudo apt-get install python-sympy
 
@@ -46,6 +47,15 @@ To install :
 To uninstall :
 
 * sudo ./uninstall.sh
+
+Note :
+
+If you are behind the proxy then you have to add the proper proxy inorder to get started with app. Dictionary lookup will work only when internet is enabled. You can use calculator only if internet is not there.
+
+For IIT Bombay students, set following proxy in your .bashrc file and add www.aero.iitb.ac.in:8081 to network settings and apply systemwide :
+
+* export http_proxy=www.aero.iitb.ac.in:8081
+* export https_proxy=www.aero.iitb.ac.in:8081
 
 
 
@@ -78,7 +88,8 @@ Authors
 -------
 
 **Saif Hasan**
-
+**Department of Computer Science and Engineering**
+**Indian Institute of Technology, Bombay**
 + http://github.com/saifhhasan
 + http://www.cse.iitb.ac.in/~saifhhasan
 + http://facebook.com/saifhhasan
