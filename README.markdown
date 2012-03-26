@@ -1,5 +1,5 @@
 
-[Define Unity Lens](http://home.iitb.ac.in/~saifhhasan/define)
+[Define Unity Lens](http://home.iitb.ac.in/~saifhhasan/)
 =================
 
 Define Unity Lens provides user with mathamatical results and dictionary look from unity dash interface only. Suppose you are reading pdf and want to get meaning of some word just press <super>+c and enter the word you want to lookup for
@@ -12,7 +12,7 @@ Hack Night Competition - 2012, IIT Bombay
 -----------
 This application was developed in Hack Night Competition organized by [Web and Coding Club](http://stab-iitb.org/wncc). To know about other application developed in Hack Night visit [Web and Coding Club at GitHub](https://github.com/wncc)
 
-You can visit Web and Coding Club on [WnCC Wiki](stab-iitb.org/wiki/Web_n_Coding_club)
+You can visit Web and Coding Club on [WnCC Wiki](http://stab-iitb.org/wiki/Web_n_Coding_club)
 
 If you are IIT Bombay student then you can join [WnCC Google Group](https://groups.google.com/group/wncc_iitb)
 
