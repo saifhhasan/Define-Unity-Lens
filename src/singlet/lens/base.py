@@ -119,7 +119,7 @@ class Lens(object):
     def __init__(self):
         self._lens = Unity.Lens.new (self._meta.bus_name, self._meta.name)
 
-        self._lens.props.search_hint = "Dictionary Scope"
+        self._lens.props.search_hint = "Define Scope"
         self._lens.props.visible = True;
         self._lens.props.search_in_global = False;
 
@@ -143,7 +143,7 @@ class SingleScopeLens(Lens):
 
         self._lens.props.search_hint = "%s Lens" % self._meta.name.title()
         self._lens.props.visible = True;
-        self._lens.props.search_in_global = False;
+        self._lens.props.search_in_global = True;
 
         # Populate categories
         self._lens.props.categories = self._meta.categories

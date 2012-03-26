@@ -144,7 +144,11 @@ class DefineLens(SingleScopeLens):
 	verb = ListViewCategory('Meaning Verb', 'accessories-dictionary')
 	adjective = ListViewCategory('Meaning Adjective', 'accessories-dictionary')
 	webDefinitions = ListViewCategory('Web Definitiions', 'accessories-dictionary')
-	mySearchModule = mySearch()
+	
+	def __init__(self):
+		super(DefineLens, self).__init__()
+		self.mySearchModule = mySearch()
+		self._lens.props.search_in_global = True;
 	
 	def global_search(self, phrase, results):
 		self.search(phrase, results)

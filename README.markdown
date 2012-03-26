@@ -43,7 +43,8 @@ To install :
 
 * sudo ./install.sh
 
-To uninstall : 
+To uninstall :
+
 * sudo ./uninstall.sh
 
 

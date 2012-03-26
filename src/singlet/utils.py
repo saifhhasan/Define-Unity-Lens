@@ -100,4 +100,4 @@ def run_lens_daemon(lens_class):
         raise SystemExit (1)
     
     lens = lens_class()
-    GObject.MainLoop().run()        
+    GObject.MainLoop().run()
